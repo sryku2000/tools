@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tpass 回饋計算機</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .discount-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .discount-info h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .discount-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .discount-table th,
+        .discount-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .discount-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+            .discount-info > div {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        .savings-positive {
+            color: #28a745 !important;
+            font-weight: bold;
+        }
+
+        .savings-negative {
+            color: #dc3545 !important;
+            font-weight: bold;
+        }
+
+        .best-option {
+            background: #d4edda !important;
+            border-color: #28a745 !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚇 Tpass 回饋計算機</h1>
+            <p>比較 Tpass 1.0、Tpass 2.0 與台北捷運常客優惠</p>
+        </div>
+
+        <div class="content">
+            <!-- 折扣資訊 -->
+            <div class="discount-info">
+                <h3>📊 回饋機制說明</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4>Tpass 1.0 月票</h4>
+                        <table class="discount-table">
+                            <tr>
+                                <th>方案</th>
+                                <th>價格</th>
+                            </tr>
+                            <tr>
+                                <td>30天無限搭乘</td>
+                                <td>$1,200</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h4>Tpass 2.0 回饋</h4>
+                        <table class="discount-table">
+                            <tr>
+                                <th>搭乘次數</th>
+                                <th>回饋比例</th>
+                            </tr>
+                            <tr>
+                                <td>11~30次</td>
+                                <td>15%</td>
+                            </tr>
+                            <tr>
+                                <td>31次以上</td>
+                                <td>30%</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h4>台北捷運常客優惠</h4>
+                        <table class="discount-table">
+                            <tr>
+                                <th>前月搭乘次數</th>
+                                <th>回饋比例</th>
+                            </tr>
+                            <tr>
+                                <td>11~20次</td>
+                                <td>5%</td>
+                            </tr>
+                            <tr>
+                                <td>21~40次</td>
+                                <td>10%</td>
+                            </tr>
+                            <tr>
+                                <td>41次以上</td>
+                                <td>15%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 輸入區域 -->
+            <div class="input-section">
+                <h3>💳 計算參數設定</h3>
+                <div class="input-group">
+                    <label for="ticketPrice">單程票價 (元)</label>
+                    <select id="ticketPrice">
+                        <option value="">請選擇票價</option>
+                        <option value="20">$20</option>
+                        <option value="25">$25</option>
+                        <option value="30">$30</option>
+                        <option value="35">$35</option>
+                        <option value="40">$40</option>
+                        <option value="45">$45</option>
+                        <option value="50">$50</option>
+                        <option value="55">$55</option>
+                        <option value="60">$60</option>
+                        <option value="65">$65</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="workDays">每月上班天數</label>
+                    <input type="number" id="workDays" placeholder="例如：22" min="1" max="31">
+                    <small style="color: #666; margin-top: 5px; display: block;">
+                        * 系統會自動計算來回次數 (上班天數 × 2)
+                    </small>
+                </div>
+
+                <button class="btn-calculate" onclick="calculateCosts()">
+                    🧮 開始計算
+                </button>
+            </div>
+
+            <!-- 結果顯示區域 -->
+            <div class="results" id="results">
+                <div class="result-card">
+                    <div class="result-title">📈 計算結果</div>
+                    <div id="calculationDetails"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">💰 費用比較</div>
+                    <div id="costComparison"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-title">🎯 最佳選擇建議</div>
+                    <div id="recommendation"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateCosts() {
+            const ticketPrice = parseInt(document.getElementById('ticketPrice').value);
+            const workDays = parseInt(document.getElementById('workDays').value);
+
+            if (!ticketPrice || !workDays) {
+                alert('請填寫所有必要資訊！');
+                return;
+            }
+
+            // 計算每月搭乘次數 (來回)
+            const monthlyRides = workDays * 2;
+            
+            // 計算原價
+            const originalCost = ticketPrice * monthlyRides;
+
+            // 計算 Tpass 1.0 (固定價格)
+            const tpass1Cost = 1200;
+            const tpass1Savings = originalCost > tpass1Cost ? originalCost - tpass1Cost : 0;
+
+            // 計算 Tpass 2.0 回饋
+            let tpassDiscount = 0;
+            if (monthlyRides >= 11 && monthlyRides <= 30) {
+                tpassDiscount = 0.15; // 15%
+            } else if (monthlyRides >= 31) {
+                tpassDiscount = 0.30; // 30%
+            }
+            const tpass2Cost = originalCost * (1 - tpassDiscount);
+            const tpass2Savings = originalCost - tpass2Cost;
+
+            // 計算台北捷運常客優惠 (前月次數影響當月回饋)
+            let metroDiscount = 0;
+            if (monthlyRides >= 11 && monthlyRides <= 20) {
+                metroDiscount = 0.05; // 5%
+            } else if (monthlyRides >= 21 && monthlyRides <= 40) {
+                metroDiscount = 0.10; // 10%
+            } else if (monthlyRides >= 41) {
+                metroDiscount = 0.15; // 15%
+            }
+            const metroRebate = Math.round(originalCost * metroDiscount); // 四捨五入
+            const metroCost = originalCost - metroRebate;
+            const metroSavings = metroRebate;
+
+            // 顯示結果
+            displayResults(ticketPrice, workDays, monthlyRides, originalCost, 
+                          tpass1Cost, tpass1Savings,
+                          tpass2Cost, tpass2Savings, tpassDiscount,
+                          metroCost, metroSavings, metroDiscount);
+        }
+
+        function displayResults(ticketPrice, workDays, monthlyRides, originalCost, 
+                              tpass1Cost, tpass1Savings,
+                              tpass2Cost, tpass2Savings, tpass2Discount,
+                              metroCost, metroSavings, metroDiscount) {
+            
+            // 找出最便宜的方案
+            const costs = [
+                { name: 'Tpass 1.0', cost: tpass1Cost, savings: tpass1Savings },
+                { name: 'Tpass 2.0', cost: Math.round(tpass2Cost), savings: Math.round(tpass2Savings) },
+                { name: '台北捷運常客優惠', cost: metroCost, savings: metroSavings },
+                { name: '原價', cost: originalCost, savings: 0 }
+            ];
+
+            costs.sort((a, b) => a.cost - b.cost);
+            const bestOption = costs[0];
+            const secondOption = costs[1];
+
+            // 計算詳情
+            const detailsHTML = `
+                <div class="result-item">
+                    <span>單程票價:</span>
+                    <span>$${ticketPrice}</span>
+                </div>
+                <div class="result-item">
+                    <span>每月上班天數:</span>
+                    <span>${workDays} 天</span>
+                </div>
+                <div class="result-item">
+                    <span>每月搭乘次數:</span>
+                    <span>${monthlyRides} 次 (來回)</span>
+                </div>
+                <div class="result-item">
+                    <span>原價總額:</span>
+                    <span>$${originalCost.toLocaleString()}</span>
+                </div>
+            `;
+
+            // 費用比較
+            const comparisonHTML = `
+                <div class="result-item ${originalCost === bestOption.cost ? 'best-option' : ''}">
+                    <span>原價 (無優惠):</span>
+                    <span>$${originalCost.toLocaleString()}</span>
+                </div>
+                <div class="result-item ${tpass1Cost === bestOption.cost ? 'best-option' : ''}">
+                    <span>Tpass 1.0 (月票制):</span>
+                    <span>$${tpass1Cost.toLocaleString()} <small style="color: ${tpass1Savings > 0 ? '#28a745' : '#dc3545'};">(${tpass1Savings > 0 ? '-' : '+'}$${Math.abs(tpass1Savings).toLocaleString()})</small></span>
+                </div>
+                <div class="result-item ${Math.round(tpass2Cost) === bestOption.cost ? 'best-option' : ''}">
+                    <span>Tpass 2.0 (${(tpass2Discount * 100).toFixed(0)}% 回饋):</span>
+                    <span>$${Math.round(tpass2Cost).toLocaleString()} <small style="color: #28a745;">(-$${Math.round(tpass2Savings).toLocaleString()})</small></span>
+                </div>
+                <div class="result-item ${metroCost === bestOption.cost ? 'best-option' : ''}">
+                    <span>台北捷運常客優惠 (${(metroDiscount * 100).toFixed(0)}% 回饋):</span>
+                    <span>$${metroCost.toLocaleString()} <small style="color: #28a745;">(-$${metroSavings.toLocaleString()})</small></span>
+                </div>
+            `;
+
+            // 建議
+            let recommendation = '';
+            
+            if (bestOption.name === 'Tpass 1.0') {
+                const savingsVsSecond = secondOption.cost - bestOption.cost;
+                recommendation = `
+                    <div style="background: #d4edda; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                        <strong>🏆 建議使用 Tpass 1.0 月票</strong><br>
+                        相較於次便宜的「${secondOption.name}」，每月可省下 <strong>$${savingsVsSecond.toLocaleString()}</strong><br>
+                        <small>固定 $1,200 的月票制度最划算！而且可無限搭乘多種大眾運輸工具。</small>
+                    </div>
+                `;
+            } else if (bestOption.name === 'Tpass 2.0') {
+                const savingsVsSecond = secondOption.cost - bestOption.cost;
+                recommendation = `
+                    <div style="background: #cce5ff; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                        <strong>🏆 建議使用 Tpass 2.0</strong><br>
+                        相較於次便宜的「${secondOption.name}」，每月可省下 <strong>$${Math.round(savingsVsSecond).toLocaleString()}</strong><br>
+                        <small>Tpass 2.0 的回饋率最適合您的搭乘頻率！</small>
+                    </div>
+                `;
+            } else if (bestOption.name === '台北捷運常客優惠') {
+                const savingsVsSecond = secondOption.cost - bestOption.cost;
+                recommendation = `
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                        <strong>🏆 建議使用台北捷運常客優惠</strong><br>
+                        相較於次便宜的「${secondOption.name}」，每月可省下 <strong>$${Math.round(savingsVsSecond).toLocaleString()}</strong><br>
+                        <small>對您的搭乘頻率來說，常客優惠最划算！</small>
+                    </div>
+                `;
+            } else {
+                recommendation = `
+                    <div style="background: #f8d7da; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                        <strong>💡 建議考慮增加搭乘頻率</strong><br>
+                        目前的搭乘頻率下，使用原價可能比較划算<br>
+                        <small>或考慮 Tpass 1.0 月票，可享受無限搭乘的便利性。</small>
+                    </div>
+                `;
+            }
+
+            // 加入詳細分析
+            let detailedAnalysis = `
+                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                    <strong>💰 詳細分析：</strong><br>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+            `;
+
+            if (originalCost <= 1200) {
+                detailedAnalysis += `<li>您的月搭乘費用較低（$${originalCost}），Tpass 1.0 月票（$1,200）可能不划算</li>`;
+            } else {
+                detailedAnalysis += `<li>您的月搭乘費用較高（$${originalCost}），Tpass 1.0 月票很划算</li>`;
+            }
+
+            if (monthlyRides >= 31) {
+                detailedAnalysis += `<li>搭乘次數達 ${monthlyRides} 次，可享 Tpass 2.0 最高 30% 回饋</li>`;
+            } else if (monthlyRides >= 11) {
+                detailedAnalysis += `<li>搭乘次數 ${monthlyRides} 次，可享 Tpass 2.0 的 15% 回饋</li>`;
+            }
+
+            if (monthlyRides >= 41) {
+                detailedAnalysis += `<li>搭乘次數達 ${monthlyRides} 次，可享捷運常客優惠最高 15% 回饋</li>`;
+            }
+
+            detailedAnalysis += `
+                    </ul>
+                </div>
+            `;
+
+            recommendation += detailedAnalysis;
+
+            // 更新 DOM
+            document.getElementById('calculationDetails').innerHTML = detailsHTML;
+            document.getElementById('costComparison').innerHTML = comparisonHTML;
+            document.getElementById('recommendation').innerHTML = recommendation;
+            document.getElementById('results').style.display = 'block';
+
+            // 滾動到結果區域
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 頁面載入時設定預設值
+        window.addEventListener('load', function() {
+            document.getElementById('workDays').value = 22; // 預設22個工作天
+        });
+    </script>
+</body>
+</html>
